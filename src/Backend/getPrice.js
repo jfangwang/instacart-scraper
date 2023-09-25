@@ -10,15 +10,6 @@ async function getPrice(productURL) {
     const page = await context.newPage();
     const priceFormat = /\d{1,3}(?:,\d{3})*(?:\.\d{2})?/
 
-    // Auth
-    // await page.goto('https://www.instacart.com/login');
-    // await page.getByPlaceholder('Email').click();
-    // await page.getByPlaceholder('Email').fill('jfwangtravelers@gmail.com');
-    // await page.getByPlaceholder('Password').click();
-    // await page.getByPlaceholder('Password').fill('jp7vKtuKi4Ezueh');
-    // await page.getByRole('button', { name: 'Log in' }).click();
-    // await page.waitForURL('https://www.instacart.com/store/?categoryFilter=homeTabForYou');
-
     // Scrape
     await page.goto(productURL);
     await page.waitForLoadState('domcontentloaded')
