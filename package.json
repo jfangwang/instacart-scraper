@@ -23,8 +23,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "test": "npx playwright test --config=playwright.config.js --",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -47,6 +47,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.38.1",
-    "@types/node": "^20.6.3"
+    "@types/node": "^20.6.3",
+    "prettier": "3.2.1"
   }
 }
+

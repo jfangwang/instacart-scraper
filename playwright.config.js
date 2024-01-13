@@ -10,32 +10,37 @@ const { defineConfig, devices } = require('@playwright/test');
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-module.exports = defineConfig({
-  testDir: './tests',
+export default defineConfig({
+  testDir: './src',
+  timeout: 800000 * 1000,
+  expect: {
+    timeout: 20 * 1000,
+  },
   fullyParallel: true,
+  globalSetup: process.env.CI && './tests/auth.setup.js',
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : 4,
-  reporter: 'html',
+  workers: '75%',
+  reporter: [[process.env.CI ? 'dot' : 'list'], ['html', { open: 'never' }]],
   use: {
     trace: 'on-first-retry',
     headless: false,
     baseURL: 'https://www.instacart.com/store/?categoryFilter=homeTabForYou',
+    storageState: 'playwright/.auth/user.json',
+    ignoreHTTPSErrors: false,
   },
 
   /* Configure projects for major browsers */
-  projects: [
-    // Setup project
-    { name: 'setup', testMatch: /.*\.setup\.js/ },
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use prepared auth state.
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    }
-  ],
+  // projects: [
+  //   // Setup project
+  //   { name: 'setup', testMatch: /.*\.setup\.js/ },
+  //   {
+  //     name: 'Chrome',
+  //     use: {
+  //       ...devices['Desktop Chrome'],
+  //     },
+  //     dependencies: ['setup'],
+  //   }
+  // ],
 });
 
