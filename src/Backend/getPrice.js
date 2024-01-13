@@ -3,22 +3,26 @@ async function getPrice(productURL, page) {
 
   // Scrape
   try {
-    await page.goto(productURL);
-    await page.waitForLoadState('domcontentloaded');
-    const label = await page
-      .locator('#item_details')
-      .locator('div[data-radium="true"]')
-      .locator('span')
-      .first()
-      .textContent();
-    if (label.includes('$')) {
-      const priceLabels = await page
+    if (typeof productURL === 'string' || productURL instanceof String) {
+      await page.goto(productURL);
+      await page.waitForLoadState('domcontentloaded');
+      const label = await page
         .locator('#item_details')
         .locator('div[data-radium="true"]')
-        .filter({ hasText: '$' })
+        .locator('span')
+        .first()
         .textContent();
-      let price = priceLabels.split(' ')[0].match(priceFormat)[0];
-      return price;
+      if (label.includes('$')) {
+        const priceLabels = await page
+          .locator('#item_details')
+          .locator('div[data-radium="true"]')
+          .filter({ hasText: '$' })
+          .textContent();
+        const price = priceLabels.split(' ')[0].match(priceFormat)[0];
+        return price;
+      }
+    } else {
+      return null;
     }
   } catch (err) {
     console.log(err);

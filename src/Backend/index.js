@@ -9,6 +9,11 @@ const notion = new Client({ auth: process.env.NOTION_API_KEY });
 async function test() {
   const foodEntries = await getFoodList();
 
+  // Browser Setup
+  const browser = await chromium.launch({ headless: false });
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
   // Parse through each food page/entry
   for (const i in foodEntries.results) {
     const foodEntry = foodEntries.results[i];
@@ -19,20 +24,15 @@ async function test() {
     );
     for (const storeIdx in storeLinksArr) {
       const store = storeLinksArr[storeIdx];
-      const storeName = store.slice(0, store.length - 4);
-      let storeUrlObj = propertiesObj[store];
+      const storeName = store.split(' ').slice(0, -1).join(' ');
+      const storeUrlObj = propertiesObj[store];
       let newProperties;
       try {
-        // Setup
-        const browser = await chromium.launch({ headless: true });
-        const context = await browser.newContext();
-        const page = await context.newPage();
         // Scrape prices on instacart
         const priceLabel = await getPrice(storeUrlObj.url, page);
-        await browser.close();
         newProperties = {
           [`${storeName + ' Price'}`]: {
-            number: Number(priceLabel) === 0 ? null : Number(priceLabel),
+            number: priceLabel === null ? null : Number(priceLabel),
           },
           Updated: {
             date: {
@@ -55,15 +55,16 @@ async function test() {
           },
         };
       }
-      let payload = {};
-      payload['page_id'] = pageID;
-      payload['properties'] = newProperties;
       console.log(
         `${storeName}: ${newProperties[storeName + ' Price'].number}`,
       );
-      await notion.pages.update(payload);
+      await notion.pages.update({
+        page_id: pageID,
+        properties: newProperties,
+      });
     }
   }
-  return;
+  await browser.close();
+  return 'Updated';
 }
 test();
